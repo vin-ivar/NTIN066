@@ -1,6 +1,6 @@
-/home/vinit/Projects/clion-2017.2.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/vinit/.CLionProjects/untitled
--- The C compiler identification is GNU 6.3.1
--- The CXX compiler identification is GNU 6.3.1
+/afs/ms.mff.cuni.cz/u/r/ravishav/dev/clion-2017.2.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /afs/ms/u/r/ravishav/uni/NTIN066/fibheap
+-- The C compiler identification is GNU 5.4.0
+-- The CXX compiler identification is GNU 5.4.0
 -- Check for working C compiler: /usr/bin/cc
 -- Check for working C compiler: /usr/bin/cc -- works
 -- Detecting C compiler ABI info
@@ -15,4 +15,4 @@
 -- Detecting CXX compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/vinit/.CLionProjects/untitled/cmake-build-debug
+-- Build files have been written to: /afs/ms/u/r/ravishav/uni/NTIN066/fibheap/cmake-build-debug

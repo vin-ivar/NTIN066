@@ -1,4 +1,4 @@
-# Install script for directory: /home/vinit/.CLionProjects/untitled
+# Install script for directory: /afs/ms/u/r/ravishav/uni/NTIN066/fibheap
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/vinit/.CLionProjects/untitled/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/afs/ms/u/r/ravishav/uni/NTIN066/fibheap/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
