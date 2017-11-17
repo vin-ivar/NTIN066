@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string>
 #include <fstream>
 
@@ -312,35 +314,34 @@ int main() {
     int steps_sum = 0 ;
     int count = 0 ;
     int size = 0 ;
+    int n1, n2 ;
     while(std::getline(std::cin, line)) {
-        char op = line[0] ;
-        if(op == '#') {
+        char *c_str = (char*)line.c_str() ;
+        char *op = strtok(c_str, " ") ;
+        if(strcmp(op, "#") == 0) {
             if(count != 0)
                 std::cout << steps_sum / count << "\t" << size << std::endl ;
             delete(h) ;
-            size = atoi(line.substr(2, -1).c_str()) ;
+            size = atoi(strtok(NULL, " ")) ;
+//            size = atoi(line.substr(2, -1).c_str()) ;
             h = new Heap(size) ;
             steps_sum = 0 ;
             count = 0 ;
         }
+ //           full_op = line.substr(0, 3).c_str() ;
+        else if(strcmp(op, "INS") == 0) {
+            n1 = atoi(strtok(NULL, " ")) ;
+            n2 = atoi(strtok(NULL, " ")) ;
+            h->insert(n2, n1) ;
+        }
+        else if(strcmp(op, "DEC") == 0) {
+            n1 = atoi(strtok(NULL, " ")) ;
+            n2 = atoi(strtok(NULL, " ")) ;
+            h->decreaseKey(n1, n2) ;
+        }
         else {
-            full_op = line.substr(0, 3).c_str() ;
-            if(full_op == "INS") {
-                remainder = line.substr(4, -1).c_str() ;
-                a1 = remainder.substr(0, remainder.find(" ")) ;
-                a2 = remainder.substr(remainder.find(" ") + 1, -1) ;
-                h->insert(atoi(a2.c_str()), atoi(a1.c_str())) ;
-            }
-            else if(full_op == "DEC") {
-                remainder = line.substr(4, -1).c_str() ;
-                a1 = remainder.substr(0, remainder.find(" ")) ;
-                a2 = remainder.substr(remainder.find(" ") + 1, -1) ;
-                h->decreaseKey(atoi(a1.c_str()), atoi(a2.c_str())) ;
-            }
-            else {
-                steps_sum += h->extract_min();
-                count += 1 ;
-            }
+            steps_sum += h->extract_min();
+            count += 1 ;
         }
     }
 }
