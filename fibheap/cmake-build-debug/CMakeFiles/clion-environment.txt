@@ -1,2 +1,2 @@
 Options: 
-CMake: 3.8.2@/afs/ms.mff.cuni.cz/u/r/ravishav/dev/clion-2017.2.3/bin/cmake/bin/cmake
+CMake: 3.8.2@/home/vinit/Projects/clion-2017.2.3/bin/cmake/bin/cmake

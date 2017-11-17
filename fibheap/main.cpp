@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <stdlib.h>
 #include <string>
 #include <fstream>
@@ -41,7 +42,7 @@ int node::getLen() {
 class Heap {
     struct node* heap ;
     struct node** node_list ;
-	// store for destructor
+	// store for array
 	int size ;
 public:
     Heap(int size) : heap(NULL), size(size) { node_list = new struct node*[size * sizeof(struct node)] ; } ;
@@ -89,6 +90,7 @@ void Heap::_fixParent(struct node* n) {
         if(n->parent->child == n)
             n->parent->child = n->next ;
     }
+    n->parent->degree -= 1 ;
 }
 
 void Heap::_fixSiblings(struct node* n) {
@@ -173,13 +175,14 @@ int Heap::extract_min() {
 
     // make an array
     int degree = 0 ;
-    struct node* sizes[32000] = {NULL};
+//    struct node** sizes = new struct node* [32000 * sizeof(struct node)] () ;
+    struct node* sizes[16] = {NULL};
     struct node* curr = this->heap ;
     // loop
     while(true) {
         degree = curr->degree ;
         // fill up list
-        if(sizes[degree] == NULL) {
+        if(!sizes[degree]) {
             sizes[degree] = curr ;
             curr = curr->next ;
             continue ;
@@ -248,6 +251,7 @@ int Heap::extract_min() {
 
         this->heap = this->heap->next ;
     }
+	//delete(sizes) ;
     return count ;
 }
 
@@ -300,6 +304,11 @@ int main() {
     std::string line ;
     std::string full_op, remainder ;
     std::string a1, a2 ;
+    std::ifstream f ;
+    f.open("/home/vinit/Uni/NTIN066/fibheap/temp") ;
+    if(!f) {
+        std::cout << "fail" ;
+    }
     int steps_sum = 0 ;
     int count = 0 ;
     int size = 0 ;
