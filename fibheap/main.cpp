@@ -14,7 +14,6 @@ struct node {
     bool marked ;
     node(int key, int elem) : key(key), elem(elem), next(this), prev(this), parent(NULL), child(NULL), degree(0), marked(false) {} ;
     void setParent(node*) ;
-    struct node* searchTree(int) ;
     bool isMarked() ;
     int getLen() ;
 };
@@ -24,20 +23,6 @@ void node::setParent(node* parent) {
     this->parent = parent ;
     this->next->setParent(parent) ;
 }
-
-struct node* node::searchTree(int key) {
-    struct node* curr = this ;
-    while(true) {
-        if(curr->key == key) return curr ;
-        if(curr->child) {
-            struct node* r_key = curr->child->searchTree(key) ;
-            if(r_key) return r_key ;
-        }
-        curr = curr->next ;
-        if(curr == this) return NULL;
-    }
-}
-
 bool node::isMarked() {
     return this->marked ;
 }
@@ -56,19 +41,25 @@ int node::getLen() {
 class Heap {
     struct node* heap ;
     struct node** node_list ;
+	// store for destructor
+	int size ;
 public:
-    Heap(int size) : heap(NULL) { node_list = new struct node*[size * sizeof(struct node)] ; } ;
-    ~Heap() {
+    Heap(int size) : heap(NULL), size(size) { node_list = new struct node*[size * sizeof(struct node)] ; } ;
+   /* ~Heap() {
+		for(int i = 0; i < this->size; i++) {
+			if(node_list[i])
+				delete(node_list[i]) ;
+		}
         delete[](node_list) ;
 		// cleanup the whole  thing
 //		struct node* n = heap ;
 //		chain_delete(n) ;
     }
+	*/
     void insert(int, int) ;
     struct node* merge(struct node*, struct node*) ;
     int extract_min() ;
     void find_min () ;
-    struct node* search (int) ;
     void decreaseKey(int, int) ;
     void _fixParent(struct node*) ;
     void _fixSiblings(struct node*) ;
@@ -126,11 +117,6 @@ void Heap::_recurseFix(struct node * n) {
         }
     }
 }
-
-struct node* Heap::search(int key) {
-    return this->heap->searchTree(key) ;
-}
-
 void Heap::decreaseKey(int elem, int to) {
     struct node* target = node_list[elem * sizeof(struct node*)] ;
     if (!target) return ;
@@ -156,12 +142,12 @@ struct node* Heap::merge(struct node* h1, struct node* h2) {
         h2 = h1 ;
         h1 = temp ;
     }
-    struct node* heap_n = h1->next ;
+    struct node* h_n = h1->next ;
     struct node* h_p = h2->prev ;
     h1->next = h2 ;
     h2->prev = h1 ;
-    heap_n->prev = h_p ;
-    h_p->next = heap_n ;
+    h_n->prev = h_p ;
+    h_p->next = h_n ;
     return h1 ;
 }
 
@@ -181,6 +167,7 @@ int Heap::extract_min() {
     prev->next = next ;
     next->prev = prev ;
     // merge kids
+	delete(this->heap) ;
     this->heap = next ;
 
 
@@ -208,7 +195,8 @@ int Heap::extract_min() {
                 swap->next = swap ;
                 swap->prev = swap ;
                 // to merge, first set the going-to-merge's parents
-                swap->setParent(curr) ;
+                // swap->setParent(curr) ;
+				swap->parent = curr ;
                 count += 1 ;
                 curr->child = merge(curr->child, swap) ;
                 curr->degree += 1 ;
@@ -226,7 +214,8 @@ int Heap::extract_min() {
                 curr->next = curr ;
                 curr->prev = curr ;
 
-                curr->setParent(swap) ;
+//                curr->setParent(swap) ;
+				curr->parent = swap ;
                 count += 1 ;
                 swap->child = merge(swap->child, curr) ;
                 swap->degree += 1 ;
