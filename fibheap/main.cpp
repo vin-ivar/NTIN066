@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <cmath>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
@@ -18,7 +19,6 @@ struct node {
     node(int key, int elem) : key(key), elem(elem), next(this), prev(this), parent(NULL), child(NULL), degree(0), marked(false) {} ;
     void setParent(node*) ;
     bool isMarked() ;
-    int getLen() ;
 };
 
 void node::setParent(node* parent) {
@@ -30,17 +30,6 @@ bool node::isMarked() {
     return this->marked ;
 }
 
-int node::getLen() {
-    int count = 0 ;
-    struct node *n = this ;
-    while(true) {
-        n = n->next ;
-        count += 1 ;
-        if(n == this)
-            return count ;
-    }
-}
-
 class Heap {
     struct node* heap ;
     struct node** node_list ;
@@ -48,36 +37,23 @@ class Heap {
 	int size ;
 public:
     Heap(int size) : heap(NULL), size(size) { node_list = new struct node*[size * sizeof(struct node)] ; } ;
-   /* ~Heap() {
-		for(int i = 0; i < this->size; i++) {
-			if(node_list[i])
-				delete(node_list[i]) ;
-		}
-        delete[](node_list) ;
-		// cleanup the whole  thing
-//		struct node* n = heap ;
-//		chain_delete(n) ;
-    }
-	*/
     void insert(int, int) ;
     struct node* merge(struct node*, struct node*) ;
     int extract_min() ;
-    void find_min () ;
     void decreaseKey(int, int) ;
     void _fixParent(struct node*) ;
     void _fixSiblings(struct node*) ;
     void _recurseFix(struct node*) ;
-	void chain_delete(struct node*) ;
 };
 
 void Heap::insert(int key, int elem) {
     if (!heap) {
         heap = new struct node(key, elem) ;
-        node_list[elem * sizeof(struct node*)] = heap ;
+        node_list[elem] = heap ;
         return ;
     }
     struct node* temp = new struct node(key, elem) ;
-    node_list[elem * sizeof(struct node*)] = temp ;
+    node_list[elem] = temp ;
     this->heap = merge(this->heap, temp) ;
 }
 
@@ -86,7 +62,7 @@ void Heap::_fixParent(struct node* n) {
     if(!n->parent) return ;
     if(n->next == n) {
         n->parent->child = NULL ;
-        return ;
+//        return ;
     }
     else {
         if(n->parent->child == n)
@@ -122,7 +98,7 @@ void Heap::_recurseFix(struct node * n) {
     }
 }
 void Heap::decreaseKey(int elem, int to) {
-    struct node* target = node_list[elem * sizeof(struct node*)] ;
+    struct node* target = node_list[elem] ;
     if (!target) return ;
     if (target->key < to) return ;
     target->key = to ;
@@ -159,10 +135,9 @@ int Heap::extract_min() {
     // delete head
     int count = 0 ;
     int min = this->heap->elem ;
-    this->node_list[min * sizeof(struct node*)] = NULL ;
+    this->node_list[min] = NULL ;
     if(this->heap->child) {
         this->heap->child->setParent(NULL);
-        // count += this->heap->child->getLen() ;
         count += this->heap->degree ;
     }
     this->heap = merge(this->heap, this->heap->child) ;
@@ -175,10 +150,9 @@ int Heap::extract_min() {
     this->heap = next ;
 
 
-    // make an array
     int degree = 0 ;
-//    struct node** sizes = new struct node* [32000 * sizeof(struct node)] () ;
-    struct node* sizes[16] = {NULL};
+    // we have to null initialize this array because we actively check whether something is NULL
+    struct node* sizes[(int)ceil(log2(this->size)) + 1] = {NULL};
     struct node* curr = this->heap ;
     // loop
     while(true) {
@@ -260,54 +234,14 @@ int Heap::extract_min() {
 int main() {
 
     Heap *h = new Heap(0) ;
-    /*
-    h->insert(95384,0) ;
-    h->insert(73932,1) ;
-    h->insert(3630,2) ;
-    h->insert(67168,3) ;
-    h->insert(59304,4) ;
-    h->insert(97875,5) ;
-    h->insert(32127,6) ;
-    h->insert(48682,7) ;
-    h->insert(78487,8) ;
-    h->insert(30031,9) ;
-    h->decreaseKey(8,78480) ;
-    h->insert(30527,10) ;
-    h->decreaseKey(6,32119) ;
-    h->decreaseKey(8,78472) ;
-    h->decreaseKey(10,30525) ;
-    h->decreaseKey(7,48674) ;
-    h->decreaseKey(8,78465) ;
-    h->decreaseKey(4,59302) ;
-    h->decreaseKey(7,48671) ;
-    h->decreaseKey(10,30522) ;
-    h->decreaseKey(6,32110) ;
-    h->decreaseKey(6,32109) ;
-    h->decreaseKey(0,95377) ;
-    h->decreaseKey(3,67167) ;
-    h->decreaseKey(10,30521) ;
-    h->decreaseKey(0,95367) ;
-    h->extract_min() ;
-    h->extract_min() ;
-    h->extract_min() ;
-    h->extract_min() ;
-    h->extract_min() ;
-    h->extract_min() ;
-    h->extract_min() ;
-    h->decreaseKey(8,78459) ;
-    h->decreaseKey(9,30023) ;
-    h->decreaseKey(1,73931) ;
-    h->decreaseKey(0,95360) ;
-    h->decreaseKey(1,73921) ;
-    h->insert(15360,11) ;
-    h->decreaseKey(2,3621) ;
-    delete(h) ;
-    */
+    std::cin.sync_with_stdio(false) ;
+    std::cout.sync_with_stdio(false) ;
+    std::ios_base::sync_with_stdio(false) ;
     std::string line ;
     std::string full_op, remainder ;
     std::string a1, a2 ;
     std::ifstream f ;
-    f.open("/home/vinit/Uni/NTIN066/fibheap/temp") ;
+    f.open("/home/vinit/Uni/NTIN066/fibheap/temp2") ;
     if(!f) {
         std::cout << "fail" ;
     }
