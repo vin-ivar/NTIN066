@@ -88,7 +88,7 @@ void Heap::_recurseFix(struct node * n) {
             _fixParent(n) ;
             _fixSiblings(n) ;
             n->setParent(NULL) ;
-            n->marked = false ;
+            //n->marked = false ;
             this->heap = merge(this->heap, n) ;
             n = parent ;
         }
@@ -112,7 +112,7 @@ void Heap::decreaseKey(int elem, int to) {
         _fixParent(target) ;
         _fixSiblings(target) ;
         this->heap = merge(this->heap, target) ;
-        //_recurseFix(target) ;
+        _recurseFix(target) ;
         target->setParent(NULL) ;
     }
 }
@@ -227,6 +227,9 @@ int Heap::extract_min() {
     return count ;
 }
 
+int max = 0 ;
+
+
 int main() {
 
     Heap *h = new Heap(0) ;
@@ -237,28 +240,27 @@ int main() {
     std::string full_op, remainder ;
     std::string a1, a2 ;
     std::ifstream f ;
-    f.open("/home/vinit/Uni/NTIN066/fibheap/temp") ;
+    f.open("/home/vinit/Uni/NTIN066/fibheap/temp2") ;
     if(!f) {
         std::cout << "fail" ;
     }
     long steps_sum = 0 ;
+    long temp = 0 ;
     int count = 0 ;
     int size = 0 ;
     int n1, n2 ;
-    while(std::getline(std::cin, line)) {
+    while(std::getline(f, line)) {
         char *c_str = (char*)line.c_str() ;
         char *op = strtok(c_str, " ") ;
         if(strcmp(op, "#") == 0) {
             if(count != 0)
-                std::cout << (double) steps_sum / count << "\t" << size << std::endl ;
+                std::cout << (double) steps_sum << "\t" << count << "\t" << size << "\t" << max << std::endl ;
             delete(h) ;
             size = atoi(strtok(NULL, " ")) ;
-//            size = atoi(line.substr(2, -1).c_str()) ;
             h = new Heap(size) ;
             steps_sum = 0 ;
             count = 0 ;
         }
- //           full_op = line.substr(0, 3).c_str() ;
         else if(strcmp(op, "INS") == 0) {
             n1 = atoi(strtok(NULL, " ")) ;
             n2 = atoi(strtok(NULL, " ")) ;
@@ -270,7 +272,9 @@ int main() {
             h->decreaseKey(n1, n2) ;
         }
         else {
-            steps_sum += h->extract_min();
+            temp = h->extract_min();
+            steps_sum += temp ;
+            if(max < temp) max = temp ;
             count += 1 ;
         }
     }
