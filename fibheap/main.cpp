@@ -23,6 +23,7 @@ struct node {
 
 void node::setParent(node* parent) {
     if(this->parent == parent) return ;
+    this->marked = false ;
     this->parent = parent ;
     this->next->setParent(parent) ;
 }
@@ -74,8 +75,7 @@ void Heap::_fixParent(struct node* n) {
 void Heap::_fixSiblings(struct node* n) {
     n->prev->next = n->next ;
     n->next->prev = n->prev ;
-    n->next = n ;
-    n->prev = n ;
+    n->next = n->prev = n ;
 }
 
 void Heap::_recurseFix(struct node * n) {
@@ -88,6 +88,7 @@ void Heap::_recurseFix(struct node * n) {
             _fixParent(n) ;
             _fixSiblings(n) ;
             n->setParent(NULL) ;
+            n->marked = false ;
             this->heap = merge(this->heap, n) ;
             n = parent ;
         }
@@ -102,14 +103,17 @@ void Heap::decreaseKey(int elem, int to) {
     if (!target) return ;
     if (target->key < to) return ;
     target->key = to ;
-    if(!target->parent) return ;
+    if(!target->parent) {
+        if(target->key < this->heap->key) this->heap = target ;
+        return ;
+    } ;
     if(target->key < target->parent->key) {
         // break!
-        _recurseFix(target) ;
         _fixParent(target) ;
         _fixSiblings(target) ;
-        target->setParent(NULL) ;
         this->heap = merge(this->heap, target) ;
+        //_recurseFix(target) ;
+        target->setParent(NULL) ;
     }
 }
 
@@ -137,7 +141,7 @@ int Heap::extract_min() {
     int min = this->heap->elem ;
     this->node_list[min] = NULL ;
     if(this->heap->child) {
-        this->heap->child->setParent(NULL);
+        this->heap->child->setParent(NULL) ;
         count += this->heap->degree ;
     }
     this->heap = merge(this->heap, this->heap->child) ;
@@ -152,7 +156,7 @@ int Heap::extract_min() {
 
     int degree = 0 ;
     // we have to null initialize this array because we actively check whether something is NULL
-    struct node* sizes[(int)ceil(log2(this->size)) + 1] = {NULL};
+    struct node* sizes[32] = {NULL};
     struct node* curr = this->heap ;
     // loop
     while(true) {
@@ -161,7 +165,6 @@ int Heap::extract_min() {
         if(!sizes[degree]) {
             sizes[degree] = curr ;
             curr = curr->next ;
-            continue ;
         }
         else {
             struct node *swap = sizes[degree] ;
@@ -169,48 +172,41 @@ int Heap::extract_min() {
             if(swap == curr) break ;
             // check which one is smaller
             if (swap->key >= curr->key) {
-                struct node* next = swap->next ;
-                struct node* prev = swap->prev ;
-                swap->next = swap ;
-                swap->prev = swap ;
-                // to merge, first set the going-to-merge's parents
-                // swap->setParent(curr) ;
-				swap->parent = curr ;
-                count += 1 ;
-                curr->child = merge(curr->child, swap) ;
-                curr->degree += 1 ;
+                swap->next->prev = swap->prev ;
+                swap->prev->next = swap->next ;
 
-                prev->next = next;
-                next->prev = prev;
-                curr = curr->next ;
+                swap->next = swap->prev = swap ;
+				swap->parent = curr ;
+                curr->degree++ ;
+                count++ ;
+                curr->child = merge(curr->child, swap) ;
 
                 // keep heap at L1
                 this->heap = curr ;
             }
             else {
-                struct node* next = curr->next ;
-                struct node* prev = curr->prev ;
-                curr->next = curr ;
-                curr->prev = curr ;
-
-//                curr->setParent(swap) ;
-				curr->parent = swap ;
-                count += 1 ;
-                swap->child = merge(swap->child, curr) ;
-                swap->degree += 1 ;
-
-                prev->next = next ;
-                next->prev = prev ;
-                curr = next ;
-                /*
-                swap->prev->next = swap->next ;
                 swap->next->prev = swap->prev ;
-                prev->next = swap ;
-                next->prev = swap ;
-                swap->prev = prev ;
-                swap->next = next ;
-                */
+                swap->prev->next = swap->next ;
+
+                if(curr->next == curr) {
+                    swap->next = swap->prev = swap ;
+                }
+                else {
+                    curr->next->prev = swap;
+                    curr->prev->next = swap;
+                    swap->next = curr->next;
+                    swap->prev = curr->prev;
+                }
+
+                curr->next = curr->prev = curr ;
+				curr->parent = swap ;
+                swap->degree++;
+                count++;
+                swap->child = merge(swap->child, curr) ;
+
+                // same
                 this->heap = swap ;
+                curr = swap ;
             }
             sizes[degree] = NULL ;
         }
@@ -241,11 +237,11 @@ int main() {
     std::string full_op, remainder ;
     std::string a1, a2 ;
     std::ifstream f ;
-    f.open("/home/vinit/Uni/NTIN066/fibheap/temp2") ;
+    f.open("/home/vinit/Uni/NTIN066/fibheap/temp") ;
     if(!f) {
         std::cout << "fail" ;
     }
-    int steps_sum = 0 ;
+    long steps_sum = 0 ;
     int count = 0 ;
     int size = 0 ;
     int n1, n2 ;
@@ -254,7 +250,7 @@ int main() {
         char *op = strtok(c_str, " ") ;
         if(strcmp(op, "#") == 0) {
             if(count != 0)
-                std::cout << steps_sum / count << "\t" << size << std::endl ;
+                std::cout << (double) steps_sum / count << "\t" << size << std::endl ;
             delete(h) ;
             size = atoi(strtok(NULL, " ")) ;
 //            size = atoi(line.substr(2, -1).c_str()) ;
