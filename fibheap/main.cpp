@@ -177,12 +177,11 @@ int Heap::extract_min() {
 
                 swap->next = swap->prev = swap ;
 				swap->parent = curr ;
-                curr->degree++ ;
+                curr->degree += 1 ;
                 count++ ;
                 curr->child = merge(curr->child, swap) ;
 
                 // keep heap at L1
-                this->heap = curr ;
             }
             else {
                 swap->next->prev = swap->prev ;
@@ -200,18 +199,18 @@ int Heap::extract_min() {
 
                 curr->next = curr->prev = curr ;
 				curr->parent = swap ;
-                swap->degree++;
+                swap->degree += 1;
                 count++;
                 swap->child = merge(swap->child, curr) ;
 
                 // same
-                this->heap = swap ;
                 curr = swap ;
             }
             sizes[degree] = NULL ;
         }
     }
     // set root
+	this->heap = curr ;
     struct node* min_node = this->heap ;
     this->heap = this->heap->next ;
     while(true) {
@@ -227,7 +226,6 @@ int Heap::extract_min() {
     return count ;
 }
 
-int max = 0 ;
 
 
 int main() {
@@ -249,12 +247,12 @@ int main() {
     int count = 0 ;
     int size = 0 ;
     int n1, n2 ;
-    while(std::getline(f, line)) {
+    while(std::getline(std::cin, line)) {
         char *c_str = (char*)line.c_str() ;
         char *op = strtok(c_str, " ") ;
         if(strcmp(op, "#") == 0) {
             if(count != 0)
-                std::cout << (double) steps_sum << "\t" << count << "\t" << size << "\t" << max << std::endl ;
+                std::cout << (double) steps_sum / count << "\t" << size << "\t" << std::endl ;
             delete(h) ;
             size = atoi(strtok(NULL, " ")) ;
             h = new Heap(size) ;
@@ -272,9 +270,7 @@ int main() {
             h->decreaseKey(n1, n2) ;
         }
         else {
-            temp = h->extract_min();
-            steps_sum += temp ;
-            if(max < temp) max = temp ;
+            steps_sum += h->extract_min();
             count += 1 ;
         }
     }
