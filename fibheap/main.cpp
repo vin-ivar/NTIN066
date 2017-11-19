@@ -112,7 +112,7 @@ void Heap::decreaseKey(int elem, int to) {
         _fixParent(target) ;
         _fixSiblings(target) ;
         this->heap = merge(this->heap, target) ;
-        _recurseFix(target) ;
+        // _recurseFix(target) ;
         target->setParent(NULL) ;
     }
 }
@@ -238,21 +238,20 @@ int main() {
     std::string full_op, remainder ;
     std::string a1, a2 ;
     std::ifstream f ;
-    f.open("/home/vinit/Uni/NTIN066/fibheap/temp2") ;
-    if(!f) {
-        std::cout << "fail" ;
-    }
-    long steps_sum = 0 ;
-    long temp = 0 ;
-    int count = 0 ;
+    unsigned long long steps_sum = 0 ;
+    long count = 0 ;
     int size = 0 ;
     int n1, n2 ;
+	char *op, *c_str ;
+	bool flag = false ;
     while(std::getline(std::cin, line)) {
-        char *c_str = (char*)line.c_str() ;
-        char *op = strtok(c_str, " ") ;
+		if(line == "# 381") flag = true ;
+		if(!flag) continue ;
+        c_str = (char*)line.c_str() ;
+        op = strtok(c_str, " ") ;
         if(strcmp(op, "#") == 0) {
             if(count != 0)
-                std::cout << (double) steps_sum / count << "\t" << size << "\t" << std::endl ;
+                std::cout << (double) steps_sum / count << "\t" << size << "\t" << steps_sum << std::endl ;
             delete(h) ;
             size = atoi(strtok(NULL, " ")) ;
             h = new Heap(size) ;
@@ -274,4 +273,5 @@ int main() {
             count += 1 ;
         }
     }
+	std::cout << (double) steps_sum / count << "\t" << size << "\t" << steps_sum << "\t" << count << std::endl ;
 }
