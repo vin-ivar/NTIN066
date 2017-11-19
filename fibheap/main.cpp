@@ -218,7 +218,10 @@ int Heap::extractMin() {
                 swap->child = merge(swap->child, curr) ;
 
                 // keep the curr train going
-                curr = swap->next ;
+                // i don't know whether curr should be moved to swap->next or to swap
+                // on the one hand, swap->next has "better" numbers, on the other I don't think that's what CLRS do
+                // i'll leave it at swap
+                curr = swap ;
             }
             sizes[degree] = NULL ;
         }
