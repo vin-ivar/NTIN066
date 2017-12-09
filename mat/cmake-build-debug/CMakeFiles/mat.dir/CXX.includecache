@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/vinit/Uni/NTIN066/mat/main.cpp
+iostream
+-
+fstream
+-
+cmath
+-
+time.h
+-
+stdio.h
+-
+math.h
+-
+

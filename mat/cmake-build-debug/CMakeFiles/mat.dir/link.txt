@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/mat.dir/main.cpp.o  -o mat 
