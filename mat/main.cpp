@@ -25,17 +25,14 @@ int main(int argc, char* argv[]) {
 	clock_t t ;
     for(int k = 54; k <= 135; k++) {
         SIZE = ceil(pow(2, (double)k / 9)) ;
-        int32_t *mat = (int32_t*) malloc(SIZE * SIZE * sizeof(int32_t)) ;
+        // int32_t *mat = (int32_t*) malloc(SIZE * SIZE * sizeof(int32_t)) ;
+		int32_t *mat = NULL ;
 		if(mat == NULL) break ;
         for(int i = 0; i < SIZE * SIZE; i++) {
             mat[i] = (int32_t) rand() ;
         }
         fprintf(fp, "N %d\n", SIZE) ;
-		t = clock() ;
         recurseDiag(0, SIZE - 1, 0, SIZE - 1, mat) ;
-		t = clock() - t ;
-		printf("%d\t%lf\n", SIZE, ((double)t) / CLOCKS_PER_SEC) ;
-		fflush(stdout) ;
         // naiveTrans(mat) ;
         fprintf(fp, "E\n") ;
     }
