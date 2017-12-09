@@ -20,21 +20,22 @@ FILE *fp ;
 int SIZE ;
 
 int main(int argc, char* argv[]) {
-    fp = fopen("/home/vinit/Uni/NTIN066/mat/reports/tpm/input.txt", "w") ;
+    fp = fopen("/home/vinit/Uni/NTIN066/mat/temp", "w") ;
     srand(time(NULL)) ;
 	clock_t t ;
     for(int k = 54; k <= 135; k++) {
         SIZE = ceil(pow(2, (double)k / 9)) ;
         // int32_t *mat = (int32_t*) malloc(SIZE * SIZE * sizeof(int32_t)) ;
-		int32_t *mat = NULL ;
-		if(mat == NULL) break ;
-        for(int i = 0; i < SIZE * SIZE; i++) {
-            mat[i] = (int32_t) rand() ;
-        }
-        fprintf(fp, "N %d\n", SIZE) ;
+        int32_t *mat = NULL ;
+//		if(mat == NULL) break ;
+        // for(int i = 0; i < SIZE * SIZE; i++) {
+        //    mat[i] = (int32_t) rand() ;
+        // }
+        printf("N %d\n", SIZE) ;
         recurseDiag(0, SIZE - 1, 0, SIZE - 1, mat) ;
         // naiveTrans(mat) ;
-        fprintf(fp, "E\n") ;
+        printf("E\n") ;
+        fflush(stdout) ;
     }
 }
 
@@ -51,7 +52,7 @@ void index_and_swap(int x1, int y1, int x2, int y2, int32_t *mat) {
 void naiveTrans(int32_t *mat) {
     for(int i = 0; i < SIZE - 1; i++) {
         for(int j = i + 1; j < SIZE; j++) {
-            fprintf(fp, "X %d %d %d %d\n", i, j, j, i) ;
+            printf("X %d %d %d %d\n", i, j, j, i) ;
             // index_and_swap(i, j, j, i, mat) ;
         }
     }
@@ -64,7 +65,7 @@ void recurseDiag(int x0, int x1, int y0, int y1, int32_t *mat) {
     my = std::floor((double)(y1 + y0) / 2) ;
     // 2 x 2
     if(x1 - x0 == 1 && y1 - y0 == 1) {
-        fprintf(fp, "X %d %d %d %d\n", x1, y0, x0, y1) ;
+        printf("X %d %d %d %d\n", x1, y0, x0, y1) ;
         // index_and_swap(x1, y0, x0, y1, mat) ;
         return ;
     }
@@ -77,12 +78,12 @@ void recurseDiag(int x0, int x1, int y0, int y1, int32_t *mat) {
 void recurseSwap(int Ax0, int Ax1, int Ay0, int Ay1, int Bx0, int Bx1, int By0, int By1, int32_t *mat) {
     int Amx, Amy, Bmx, Bmy ;
     if(Ax1 - Ax0 == 1 && Ay1 - Ay0 == 1) {
-        fprintf(fp, "X %d %d %d %d\n", Ax1, Ay0, Ax0, Ay1) ;
-        fprintf(fp, "X %d %d %d %d\n", Bx1, By0, Bx0, By1) ;
-        fprintf(fp, "X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
-        fprintf(fp, "X %d %d %d %d\n", Ax0, Ay1, Bx0, By1) ;
-        fprintf(fp, "X %d %d %d %d\n", Ax1, Ay0, Bx1, By0) ;
-        fprintf(fp, "X %d %d %d %d\n", Ax1, Ay1, Bx1, By1) ;
+        printf("X %d %d %d %d\n", Ax1, Ay0, Ax0, Ay1) ;
+        printf("X %d %d %d %d\n", Bx1, By0, Bx0, By1) ;
+        printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
+        printf("X %d %d %d %d\n", Ax0, Ay1, Bx0, By1) ;
+        printf("X %d %d %d %d\n", Ax1, Ay0, Bx1, By0) ;
+        printf("X %d %d %d %d\n", Ax1, Ay1, Bx1, By1) ;
 
         // index_and_swap(Ax1, Ay0, Ax0, Ay1, mat) ;
         // index_and_swap(Bx1, By0, Bx0, By1, mat) ;
@@ -93,23 +94,23 @@ void recurseSwap(int Ax0, int Ax1, int Ay0, int Ay1, int Bx0, int Bx1, int By0, 
         return ;
     }
     if(Ax1 - Ax0 == 0 && Ay1 - Ay0 == 1) {
-        fprintf(fp, "X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
-        fprintf(fp, "X %d %d %d %d\n", Ax0, Ay1, Bx1, By0) ;
+        printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
+        printf("X %d %d %d %d\n", Ax0, Ay1, Bx1, By0) ;
 
         // index_and_swap(Ax0, Ay0, Bx0, By0, mat) ;
         // index_and_swap(Ax0, Ay1, Bx1, By0, mat) ;
         return ;
     };
     if(Ax1 - Ax0 == 1 && Ay1 - Ay0 == 0) {
-        fprintf(fp, "X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
-        fprintf(fp, "X %d %d %d %d\n", Ax1, Ay0, Bx0, By1) ;
+        printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
+        printf("X %d %d %d %d\n", Ax1, Ay0, Bx0, By1) ;
 
         // index_and_swap(Ax0, Ay0, Bx0, By0, mat) ;
         // index_and_swap(Ax1, Ay0, Bx0, By1, mat) ;
         return ;
     };
     if(Ax1 - Ax0 == 0 && Ay1 - Ay0 == 0) {
-        fprintf(fp, "X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
+        printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
 
         // index_and_swap(Ax0, Ay0, Bx0, By0, mat) ;
         return ;
