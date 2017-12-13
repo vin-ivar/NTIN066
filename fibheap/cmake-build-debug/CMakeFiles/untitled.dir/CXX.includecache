@@ -11,7 +11,13 @@ iostream
 -
 fstream
 -
+string.h
+-
+cmath
+-
 stdlib.h
+-
+stdio.h
 -
 string
 -

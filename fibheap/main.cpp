@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
-#include <fstream>
 
 struct node {
     node *next, *prev, *parent, *child ;
@@ -32,10 +31,15 @@ bool node::isMarked() {
 }
 
 class Heap {
+	bool naive ;
     node* heap ;
     node** node_list ;
 public:
-    Heap(int size) : heap(NULL) { node_list = new node*[size * sizeof(node)] ; } ;
+    Heap(int size, std::string arg) : heap(NULL) { 
+		node_list = new node*[size * sizeof(node)] ; 
+		if(arg == "--naive") naive = true ;
+		else if(arg == "--classic") naive = false ;
+	} ;
     void insert(int, int) ;
     node* merge(node*, node*) ;
     int extractMin() ;
@@ -116,7 +120,9 @@ void Heap::decreaseKey(int elem, int to) {
         this->heap = merge(this->heap, target) ;
         // moveToRoot is after _recurseFix because we need the parent
         // also it doesn't really matter, it just looks weird
-        _recurseFix(target) ;
+		// comment this out if naive
+		if(!this->naive)
+        	_recurseFix(target) ;
         target->moveToRoot() ;
     }
 }
@@ -227,6 +233,7 @@ int Heap::extractMin() {
         }
     }
     // set root
+	// more ugly code
 	this->heap = curr ;
     node* min_node = this->heap ;
     this->heap = this->heap->next ;
@@ -243,8 +250,15 @@ int Heap::extractMin() {
     return count ;
 }
 
-int main() {
-    Heap *h = new Heap(0) ;
+int main(int argc, char *argv[]) {
+	if(!argv[1]) {
+		std::cerr << "Usage:\n--naive: naive implementation\n--classic: classic implementation\n" ;
+		return 0;
+	}
+
+	std::string arg = argv[1] ;
+    Heap *h = new Heap(0, arg) ;
+	// this is useless lol
     std::ios_base::sync_with_stdio(false) ;
     std::string line ;
     long steps_sum = 0 ;
@@ -261,7 +275,7 @@ int main() {
                 std::cout << (double) steps_sum / count << "\t" << size << std::endl ;
             delete(h) ;
             size = atoi(strtok(NULL, " ")) ;
-            h = new Heap(size) ;
+            h = new Heap(size, arg) ;
             steps_sum = 0 ;
             count = 0 ;
         }

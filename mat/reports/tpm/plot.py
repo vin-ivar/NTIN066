@@ -21,6 +21,7 @@ line1 = plt.plot(X_cl, y_cl, '-', label="Classic")
 line2 = plt.plot(X_nv, y_nv, '-', label="Naive")
 #plt.setp(line1, color='C2')
 #plt.setp(line2, color='C3')
+plt.xscale('log', base=2)
 plt.xlabel('Size')
 plt.ylabel('Time')
 

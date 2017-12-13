@@ -1,3 +1,6 @@
+// uncomment all printfs and comment out all index_and_swaps for use with the simulator
+// could be fixed and made easier with a function pointer pointing to both alternatively
+// but not necessary
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -6,14 +9,9 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-/*
-    for(int i = 0; i < SIZE ; i++) {
-        for(int j = 0; j < SIZE; j++) {
-            // printf("%d\t", mat[SIZE * i + j]) ;
-        }
-        // printf("\n") ;
-    }*/
+
 void naiveTrans(int32_t*) ;
+// I could have made this use 4 args instead of 8 but never mind now
 void recurseSwap(int, int, int, int, int, int, int, int, int32_t*) ;
 void recurseDiag(int, int, int, int, int32_t*) ;
 
@@ -30,30 +28,24 @@ int main(int argc, char* argv[]) {
 
     fp = fopen("/afs/ms/u/r/ravishav/uni/NTIN066/mat/temp", "w") ;
     srand(time(NULL)) ;
-	clock_t t ;
-    for(int k = 54; k <= 135; k++) {
+    for(int k = 54; ; k++) {
 		count = 0 ;
 		total_time = 0 ;
         SIZE = ceil(pow(2, (double)k / 9)) ;
-
+		// int32_t is to be safe
         int32_t *mat = (int32_t*) malloc(SIZE * SIZE * sizeof(int32_t)) ;
 		if(mat == NULL) break ;
 
 		for(int i = 0; i < SIZE * SIZE; i++) {
 			mat[i] = (int32_t) rand() ;
 		}
-
-		// // printf("%d %d\n", k, SIZE) ;
         // printf("N %d\n", SIZE) ;
-		// t = clock() ;
 		if(!strcmp(argv[1], "-c")) {
 	        recurseDiag(0, SIZE - 1, 0, SIZE - 1, mat) ;
 		}
 		else if(!strcmp(argv[1], "-n")) {
 	        naiveTrans(mat) ;
 		}
-		// t = clock() - t ;
-		printf("%d\t%lf\n", SIZE, total_time) ;
 		fprintf(stderr, "%d\t%d\n", k, SIZE) ;
 		free(mat) ;
         // printf("E\n") ;
@@ -61,12 +53,14 @@ int main(int argc, char* argv[]) {
     }
 }
 
+// swap
 void swap(int32_t *a, int32_t *b) {
     int32_t temp = *a ;
     *a = *b ;
     *b = temp ;
 }
 
+// swap with all the indexing maths, also use clock here
 void index_and_swap(int x1, int y1, int x2, int y2, int32_t *mat) {
 	clock_t t ;
 	t = clock() ;
@@ -76,6 +70,7 @@ void index_and_swap(int x1, int y1, int x2, int y2, int32_t *mat) {
 	count += 1 ;
 }
 
+// naive, consider only upper triangle
 void naiveTrans(int32_t *mat) {
 	for(int i = 0; i < SIZE - 1; i++) {
 		for(int j = i + 1; j < SIZE; j++) {
@@ -85,6 +80,7 @@ void naiveTrans(int32_t *mat) {
     }
 }
 
+// recurse
 void recurseDiag(int x0, int x1, int y0, int y1, int32_t *mat) {
     // b means bound lol
     int mx, my ;
@@ -100,10 +96,13 @@ void recurseDiag(int x0, int x1, int y0, int y1, int32_t *mat) {
     recurseDiag(x0, mx, y0, my, mat) ;
     recurseDiag(mx + 1, x1, my + 1, y1, mat) ;
     recurseSwap(mx + 1, x1, y0, my, x0, mx, my + 1, y1, mat) ;
-
 }
+
+// recurse for top-right and bottom-left
 void recurseSwap(int Ax0, int Ax1, int Ay0, int Ay1, int Bx0, int Bx1, int By0, int By1, int32_t *mat) {
     int Amx, Amy, Bmx, Bmy ;
+	// handle "small" cases
+	// 2 x 2 matrix
     if(Ax1 - Ax0 == 1 && Ay1 - Ay0 == 1) {
         // printf("X %d %d %d %d\n", Ax1, Ay0, Ax0, Ay1) ;
         // printf("X %d %d %d %d\n", Bx1, By0, Bx0, By1) ;
@@ -120,6 +119,8 @@ void recurseSwap(int Ax0, int Ax1, int Ay0, int Ay1, int Bx0, int Bx1, int By0, 
         index_and_swap(Ax1, Ay1, Bx1, By1, mat) ;
         return ;
     }
+
+	// 1 x 2 matrix
     if(Ax1 - Ax0 == 0 && Ay1 - Ay0 == 1) {
         // printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
         // printf("X %d %d %d %d\n", Ax0, Ay1, Bx1, By0) ;
@@ -128,6 +129,8 @@ void recurseSwap(int Ax0, int Ax1, int Ay0, int Ay1, int Bx0, int Bx1, int By0, 
         index_and_swap(Ax0, Ay1, Bx1, By0, mat) ;
         return ;
     };
+
+	// 2 x 1 matrix
     if(Ax1 - Ax0 == 1 && Ay1 - Ay0 == 0) {
         // printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
         // printf("X %d %d %d %d\n", Ax1, Ay0, Bx0, By1) ;
@@ -136,7 +139,10 @@ void recurseSwap(int Ax0, int Ax1, int Ay0, int Ay1, int Bx0, int Bx1, int By0, 
         index_and_swap(Ax1, Ay0, Bx0, By1, mat) ;
         return ;
     };
+
+	// singleton lol
     if(Ax1 - Ax0 == 0 && Ay1 - Ay0 == 0) {
+		// this is superfluous but it doesn't really matter much
         // printf("X %d %d %d %d\n", Ax0, Ay0, Bx0, By0) ;
 
         index_and_swap(Ax0, Ay0, Bx0, By0, mat) ;
