@@ -51,7 +51,8 @@ public:
     // caps -> 2 ^ lower
     HashTest(int, int, int, char*, char*) ;
     int __rehash() ;
-    int hash_fn(uint64_t, int t_no=0) ;
+    // int hash_fn(uint64_t, int t_no=0) ;
+	int (HashTest::*hash_fn)(uint64_t, int) ;
     int __hash_tab(uint64_t, int t_no=0) ;
     int __hash_mul(uint64_t, int t_no=0) ;
     int __hash_mod(uint64_t, int t_no=0) ;
@@ -71,15 +72,23 @@ HashTest::HashTest(int u, int k, int c, char *fn, char *al) : fn(fn), al(al), u(
     // init tables and random nums
     // 2 for cuckoo
     hash_table = (uint64_t*) calloc(K, sizeof(uint64_t)) ;
-    tabular_1 = (uint64_t*) malloc(cL * sizeof(uint64_t)) ;
-    tabular_2 = (uint64_t*) malloc(cL * sizeof(uint64_t)) ;
-	do { a_1 = rng_next_u64() % U; } while(a_1 % 2 != 1) ;
-	do { a_2 = rng_next_u64() % U; } while(a_2 % 2 != 1) ;
 
-    // table mask = max no. of bits allowed in hash table == k
-    int table_mask = K - 1 ;
-	for (int i = 0; i < cL; i++) tabular_1[i] = rng_next_u64() & table_mask ;
-	for (int i = 0; i < cL; i++) tabular_2[i] = rng_next_u64() & table_mask ;
+	// flags
+	if(strcmp(fn, "--tab") == 0) {
+		hash_fn = &HashTest::__hash_tab ;
+		tabular_1 = (uint64_t*) malloc(cL * sizeof(uint64_t)) ;
+		tabular_2 = (uint64_t*) malloc(cL * sizeof(uint64_t)) ;
+		// table mask = max no. of bits allowed in hash table == k
+		int table_mask = K - 1 ;
+		for (int i = 0; i < cL; i++) tabular_1[i] = rng_next_u64() & table_mask ;
+		for (int i = 0; i < cL; i++) tabular_2[i] = rng_next_u64() & table_mask ;
+	}
+	else if(strcmp(fn, "--mul") == 0) {
+		do { a_1 = rng_next_u64() % U; } while(a_1 % 2 != 1) ;
+		do { a_2 = rng_next_u64() % U; } while(a_2 % 2 != 1) ;
+		hash_fn = &HashTest::__hash_mul ;
+	} 
+	else if(strcmp(fn, "--mod") == 0) hash_fn = &HashTest::__hash_mod ;
 }
 
 int HashTest::__hash_tab(uint64_t num, int t_no) {
@@ -102,7 +111,8 @@ int HashTest::__hash_mul(uint64_t num, int t_no) {
 	uint64_t curr ;
 	if(t_no == 0) curr = a_1 ;
 	else curr = a_2 ;
-    return (unsigned int)((curr * num) % U) / (U / K) ;
+	return (unsigned int)((curr * num) % U) / (U / K) ;
+	// return (unsigned int)((curr * num) >> u - k) ;
 }
 
 int HashTest::__hash_mod(uint64_t num, int t_no) {
@@ -131,9 +141,9 @@ void swap(uint64_t *a, uint64_t *b) {
 }
 
 int HashTest::__insert_coo(uint64_t num) {
-    int cs1 = hash_fn(num, 0) ;
-    int cs2 = hash_fn(num, 1) ;
-    int pos = hash_fn(num, 0) ;
+    int cs1 = (*this.*hash_fn)(num, 0) ;
+    int cs2 = (*this.*hash_fn)(num, 1) ;
+    int pos = (*this.*hash_fn)(num, 0) ;
     if(hash_table[cs1] == num || hash_table[cs2] == num) return 0 ;
     int swaps = 0 ;
     int MAX_TRIES = k * k;
@@ -145,7 +155,7 @@ int HashTest::__insert_coo(uint64_t num) {
             return swaps ;
         }
         swap(&old, &hash_table[pos]) ;
-        if(pos == hash_fn(old, 0)) pos = hash_fn(old, 1) ; else pos = hash_fn(old, 0) ;
+        if(pos == (*this.*hash_fn)(old, 0)) pos = (*this.*hash_fn)(old, 1) ; else pos = (*this.*hash_fn)(old, 0) ;
     }
     swaps += __rehash() ;
     return swaps + __insert_coo(old) ;
@@ -155,7 +165,7 @@ int HashTest::__insert_lin(uint64_t num) {
     // start with 1 because it will always be at least 1 access
     int accesses = 1 ;
     int table_len = pow(2, k) ;
-    int hash_val = hash_fn(num) ;
+    int hash_val = (*this.*hash_fn)(num, 0) ;
     while(hash_table[hash_val % table_len] != 0) {
         hash_val++ ;
         if(hash_table[hash_val % table_len] == num) return 0 ;
@@ -166,6 +176,7 @@ int HashTest::__insert_lin(uint64_t num) {
 }
 
 // switch with appropriate function of choice
+/*
 int HashTest::hash_fn(uint64_t num, int t_no) {
 	if(strcmp(this->fn, "--tab") == 0)
 	    return __hash_tab(num, t_no) ;
@@ -174,7 +185,9 @@ int HashTest::hash_fn(uint64_t num, int t_no) {
 	else if(strcmp(this->fn, "--mod") == 0)
 		return __hash_mod(num, t_no) ;
 	else { fprintf(stderr, "Inappropriate function\n") ; exit(0) ; }
+	return __hash_tab(num, t_no) ;
 }
+*/
 
 double HashTest::insert(uint64_t num) {
     clock_t t ;
@@ -185,6 +198,7 @@ double HashTest::insert(uint64_t num) {
     total_elements++ ;
     load_factor = total_elements / (double) this->K ;
     t = clock() ;
+	/*
 	if(strcmp(this->al, "--lin") ==	0)
 	    return __insert_lin(num) ;
 	else if(strcmp(this->al, "--coo") == 0)
@@ -193,6 +207,8 @@ double HashTest::insert(uint64_t num) {
 		fprintf(stderr, "Inappropriate algorithm") ;
 		exit(0) ;
 	}
+	*/
+	return __insert_lin(num) ;
     t = clock() - t ;
     return ((double)t * 1000) / CLOCKS_PER_SEC ;
 }
@@ -227,7 +243,7 @@ int main(int argc, char *argv[]) {
 		rng_setup(time(NULL));
 		for (int m = 8; m <= 24; m++) {
 			printf("S%d", m) ;
-			for (int iter = 0; iter < 10; iter++) {
+			for (int iter = 0; iter < 100; iter++) {
 				int avg = 0;
 				int count = 0;
 				int avg_steps = 0;
