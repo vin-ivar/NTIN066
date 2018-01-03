@@ -61,6 +61,7 @@ public:
     int __insert_lin(uint64_t) ;
     int getSize() {return K ;} ;
     double getLF() {return load_factor ;} ;
+	void destroy() { free(this->hash_table) ; if(strcmp(fn, "--tab") == 0) { free(this->tabular_1) ; free(this->tabular_2) ; }}
 };
 
 HashTest::HashTest(int u, int k, int c, char *fn, char *al) : fn(fn), al(al), u(u), k(k), c(c), U(pow(2, u)), K(pow(2, k)), C(pow(2, c)), total_elements(0), load_factor(0) {
@@ -164,7 +165,8 @@ int HashTest::__insert_coo(uint64_t num) {
 int HashTest::__insert_lin(uint64_t num) {
     // start with 1 because it will always be at least 1 access
     int accesses = 1 ;
-    int table_len = pow(2, k) ;
+//    int table_len = pow(2, k) ;
+    int table_len = K ;
     int hash_val = (*this.*hash_fn)(num, 0) ;
     while(hash_table[hash_val % table_len] != 0) {
         hash_val++ ;
@@ -197,20 +199,10 @@ double HashTest::insert(uint64_t num) {
     }
     total_elements++ ;
     load_factor = total_elements / (double) this->K ;
-    t = clock() ;
-	/*
-	if(strcmp(this->al, "--lin") ==	0)
-	    return __insert_lin(num) ;
-	else if(strcmp(this->al, "--coo") == 0)
-		return __insert_coo(num) ;
-	else {
-		fprintf(stderr, "Inappropriate algorithm") ;
-		exit(0) ;
-	}
-	*/
+//    t = clock() ;
 	return __insert_lin(num) ;
-    t = clock() - t ;
-    return ((double)t * 1000) / CLOCKS_PER_SEC ;
+//    t = clock() - t ;
+//    return ((double)t * 1000) / CLOCKS_PER_SEC ;
 }
 
 int main(int argc, char *argv[]) {
@@ -257,6 +249,7 @@ int main(int argc, char *argv[]) {
 					if (t.getLF() > 0.91) break;
 				}
 				printf("\t%f", (double)avg / count) ;
+				t.destroy() ;
 			}
 			printf("\n");
 		}
